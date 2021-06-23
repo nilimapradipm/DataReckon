@@ -46,27 +46,30 @@ def excel_diff():
                 # df_NEW = pd.read_excel(path_NEW1).fillna(0)
                 df2 = pd.read_excel(path_NEW1, header=None)
 
-                df3 = df1.append(pd.Series(['-----------------------------']), ignore_index=True)
+                df3 = df1.append(pd.Series(['----------------------------- OLD VERSION VS NEW VERSION SEPERATOR -----------------------------']), ignore_index=True)
                # print(df1)
 
                 result = df3.append(df2)
 
                 result = result.drop_duplicates(keep=False)
-               # result.loc[~result.index.isin(df2.index), 'status']
-               #result.loc[~result.index.isin(df1.index), 'status']
-               # idx = df3.stack().groupby(level=[0, 1]).nunique()
-                #result.loc[idx.mask(idx <= 1).dropna().index.get_level_values(0), 'status'] = 'MODIFIED'
-                #print(result)
-                total:int = len(result) - 1
-                number:int = 0
-                #print(Total Differences)
-                #print(number)
+
+                print(result)
+                total: int = len(result) - 1
+                number: int = 0
+                # print(Total Differences)
+                # print(number)
 
                 if (total == 0):
-                     status = 'Matched'
+                    status = 'Matched'
                 else:
                     status = 'Differences'
                 print(status)
+
+
+               # result.loc[~result.index.isin(df2.index), 'Status'] = 'new'
+               # result.loc[~result.index.isin(df1.index), 'Status'] = 'new'
+               #idx = result.stack().groupby(level=[0, 1]).nunique()
+               #result.loc[idx.mask(idx <= 1).dropna().index.get_level_values(0), 'Status'] = 'MODIFIED'
 
 
                 fname = '{}vs{}.xls'.format(os.path.splitext(item1)[0], os.path.splitext(item2)[0])
