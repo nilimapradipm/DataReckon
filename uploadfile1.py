@@ -280,13 +280,23 @@ def getT24DB(currency_code, accounting_date, user_je_source_name):
          print("khattu")
          df1 = df1[df1["CURRENCY_CODE"].isin(['AED', 'USD', 'SEK','JPY' , 'EUR', 'CHF', 'AUD', 'CAD', 'GBP', 'STAT']) & (df1["ACCOUNTING_DATE"] == accounting_date) & (
                  df1["USER_JE_SOURCE_NAME"] == user_je_source_name)]
-         print(df1.head())
+         print(df1)
          accounted_dr = Total_Sum_Of_Column(df1,"ACCOUNTED_DR")
 
+         #df1 = pd.DataFrame(data=accountedcr)
 
+         print(df1)
 
+         global myd1
+         myd1 = myDict()
 
-        # accounted_dr1 = "No Data exists for Currency Code"
+         for inde in df1.index:
+             print(df1['CURRENCY_CODE'][inde], df1['ACCOUNTED_DR'][inde])
+             myd1.add(df1['CURRENCY_CODE'][inde], df1['ACCOUNTED_DR'][inde])
+         print(myd1)
+         #return str(myd)
+
+     # accounted_dr1 = "No Data exists for Currency Code"
         # accounted_dr = "No Data exists for Currency Code"
 
         # print('sum: ' + accounted_dr)
@@ -309,6 +319,7 @@ def getT24DB(currency_code, accounting_date, user_je_source_name):
 def getT24CR(currency_code, accounting_date, user_je_source_name):
     df1 = pd.read_excel('T24SourceFile.xlsx', engine='openpyxl', header=0)
     print(df1.head())
+
     list1 = []
     # print(df2.head())
     # df1.query(str("CURRENCY_CODE") == 'ÁED' and str("ACCOUNTING_DATE") == '20210130')
@@ -353,6 +364,14 @@ def getT24CR(currency_code, accounting_date, user_je_source_name):
                           df1["USER_JE_SOURCE_NAME"] == user_je_source_name)]
         print(df1.head())
         accounted_cr = Total_Sum_Of_Column(df1, "ACCOUNTED_CR")
+
+        global myd2
+        myd2 = myDict()
+
+        for inde in df1.index:
+            print(df1['CURRENCY_CODE'][inde], df1['ACCOUNTED_CR'][inde])
+            myd2.add(df1['CURRENCY_CODE'][inde], df1['ACCOUNTED_CR'][inde])
+        print(myd2)
 
         # accounted_dr1 = "No Data exists for Currency Code"
         # accounted_dr = "No Data exists for Currency Code"
@@ -417,6 +436,14 @@ def getOGLT24JournalDebit(currency_code, date, user_je_source_name, category):
          #print(df2.head())
          journal_debit = Total_Sum_Of_Column(df2, "Journal_Debit")
 
+         global myd3
+         myd3 = myDict()
+
+         for inde in df2.index:
+             print(df2['Currency'][inde], df2['Journal_Debit'][inde])
+             myd3.add(df2['Currency'][inde], df2['Journal_Debit'][inde])
+         print(myd3)
+
 
     # accounted_dr1 = "No Data exists for Currency Code"
     # accounted_dr = "No Data exists for Currency Code"
@@ -477,6 +504,14 @@ def getOGLT24JournalCredit(currency_code, date, user_je_source_name, category):
         # print(df2.head())
         journal_credit = Total_Sum_Of_Column(df2, "Journal_Credit")
 
+        global myd4
+        myd4 = myDict()
+
+        for inde in df2.index:
+            print(df2['Currency'][inde], df2['Journal_Credit'][inde])
+            myd4.add(df2['Currency'][inde], df2['Journal_Credit'][inde])
+        print(myd4)
+
         # accounted_dr1 = "No Data exists for Currency Code"
         # accounted_dr = "No Data exists for Currency Code"
 
@@ -491,6 +526,7 @@ def getOGLT24JournalCredit(currency_code, date, user_je_source_name, category):
 
 
 def compareDebit(accounted_dr, journal_debit):
+    #print(myd)
     if (accounted_dr == journal_debit):
         print("Data Match")
         strdebitMsg = "Data Match"
@@ -499,7 +535,13 @@ def compareDebit(accounted_dr, journal_debit):
         if (len(accounted_dr) | len(journal_debit) > 30):
             strdebitMsg = "Data Recon cannot be done"
         else:
-            strdebitMsg = "Data Mis Match"
+            #strdebitMsg = "Data Mis Match"
+            print(myd1)
+            print(myd3)
+            unmatched_item = set(myd1.items()) ^ set(myd3.items())
+            print(unmatched_item)  # should be 0
+            strdebitMsg = "Data Mis Match" + str(unmatched_item)
+
 
         return strdebitMsg
 
@@ -515,9 +557,23 @@ def compareCredit(accounted_cr, journal_credit):
         if (len(accounted_cr) | len(journal_credit) > 30):
             strcreditMsg = "Data Recon cannot be done"
         else:
-            strcreditMsg = "Data Mis Match"
+            #strcreditMsg = "Data Mis Match"
+            print(myd2)
+            print(myd4)
+            unmatched_item = set(myd2.items()) ^ set(myd4.items())
+            print(unmatched_item)  # should be 0
+            strcreditMsg = "Data Mis Match" + str(unmatched_item)
 
         return strcreditMsg
+
+class myDict(dict):
+
+    def __init__(self):
+        self = dict()
+
+    def add(self, key, value):
+        self[key] = value
+
 
 
 def Total_Sum_Of_Column(df, column):
